@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+  <title>日程工作台</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app">
+  <!-- ============ 侧栏 ============ -->
+  <aside class="sidebar">
+    <div class="dragbar"></div>
+
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span>日程工作台</span>
+    </div>
+
+    <div class="today-card" id="todayCard">
+      <div class="today-left">
+        <div class="today-day" id="todayNum">--</div>
+        <div class="today-meta">
+          <div class="today-week" id="todayWeek">--</div>
+          <div class="today-sub" id="todaySub">今天</div>
+        </div>
+      </div>
+      <div class="today-stats" id="todayStats"></div>
+    </div>
+
+    <div class="cat-legend" id="catLegend"></div>
+
+    <div class="todo-head">
+      <span>待办清单</span>
+      <span class="todo-count" id="todoCount">0</span>
+    </div>
+
+    <div class="todo-input-wrap">
+      <input id="todoInput" type="text" placeholder="添加待办，回车确认" autocomplete="off" spellcheck="false" />
+      <button class="todo-add" id="todoAdd" title="添加">+</button>
+    </div>
+
+    <div class="todo-list" id="todoList"></div>
+
+    <div class="sidebar-foot">
+      <button class="ghost-btn" id="btnSettings">设置</button>
+    </div>
+  </aside>
+
+  <!-- ============ 主区 ============ -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="nav-group">
+          <button class="icon-btn" id="btnPrev" title="上一页">‹</button>
+          <button class="icon-btn" id="btnNext" title="下一页">›</button>
+        </div>
+        <button class="pill-btn" id="btnToday">今天</button>
+        <h1 class="period" id="periodLabel">—</h1>
+      </div>
+
+      <div class="topbar-right">
+        <div class="search-wrap">
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+            <path d="M7 1.5a5.5 5.5 0 1 0 3.4 9.8l2.6 2.6a.9.9 0 1 0 1.3-1.3l-2.6-2.6A5.5 5.5 0 0 0 7 1.5Zm0 1.8a3.7 3.7 0 1 1 0 7.4 3.7 3.7 0 0 1 0-7.4Z" fill="currentColor"/>
+          </svg>
+          <input id="searchInput" type="text" placeholder="搜索 · ⌘K 新建" autocomplete="off" spellcheck="false" />
+        </div>
+        <div class="seg" id="viewSeg">
+          <button data-view="month" class="on">月</button>
+          <button data-view="day">日</button>
+          <button data-view="study">学习</button>
+        </div>
+        <button class="ghost-btn" id="btnReport" title="把本周安排整理成周报">周报</button>
+        <button class="ghost-btn" id="btnWidget" title="桌面组件：常驻小面板显示今日日程与待办（⌘⇧D）">组件</button>
+        <button class="primary-btn" id="btnNew">新建日程</button>
+      </div>
+    </header>
+
+    <!-- 月视图 -->
+    <section class="view month-view" id="monthView">
+      <div class="weekday-row">
+        <div class="wk wk-sun">日</div>
+        <div class="wk">一</div>
+        <div class="wk">二</div>
+        <div class="wk">三</div>
+        <div class="wk">四</div>
+        <div class="wk">五</div>
+        <div class="wk wk-sat">六</div>
+      </div>
+      <div class="month-grid" id="monthGrid"></div>
+    </section>
+
+    <!-- 日视图 -->
+    <section class="view day-view hidden" id="dayView">
+      <div class="day-head">
+        <div class="day-head-title" id="dayHeadTitle">—</div>
+        <div class="day-head-sub" id="dayHeadSub"></div>
+      </div>
+      <div class="day-scroll" id="dayScroll">
+        <div class="day-canvas" id="dayCanvas">
+          <div class="hours" id="hourCol"></div>
+          <div class="day-body" id="dayBody">
+            <div class="now-line hidden" id="nowLine"><span></span></div>
+            <div class="day-events" id="dayEvents"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 学习笔记 -->
+    <section class="view study-view hidden" id="studyView">
+      <div class="study-top">
+        <div class="seg seg-sm" id="studyStatusSeg">
+          <button data-status="" class="on">全部</button>
+          <button data-status="new">未消化</button>
+          <button data-status="learning">在学</button>
+          <button data-status="learned">已消化</button>
+        </div>
+        <select id="studySource" class="mini-select" title="按来源筛选">
+          <option value="">全部来源</option>
+          <option value="chatgpt">ChatGPT</option>
+          <option value="workbuddy">WorkBuddy</option>
+          <option value="book">书</option>
+          <option value="video">视频</option>
+          <option value="course">课程</option>
+          <option value="other">其他</option>
+        </select>
+        <input id="studySearch" class="study-search" type="text" placeholder="搜索标题、正文、标签" autocomplete="off" spellcheck="false" />
+        <span class="study-count" id="studyCount">0 条</span>
+        <button class="ghost-btn" id="studyReveal" title="在访达中显示学习笔记的数据文件">数据文件</button>
+        <button class="primary-btn" id="btnNewNote">新建笔记</button>
+      </div>
+
+      <div class="study-body">
+        <div class="note-list" id="noteList"></div>
+
+        <div class="note-pane">
+          <div class="note-empty" id="noteEmpty">
+            <div class="ne-title">还没有选中笔记</div>
+            <div class="ne-sub">左边选一条，或点「新建笔记」。<br>在 WorkBuddy 里让我写入的学习记录，会自动出现在这里。</div>
+          </div>
+
+          <div class="note-editor hidden" id="noteEditor">
+            <input id="noteTitle" class="note-title" type="text" placeholder="这条学的是什么" autocomplete="off" />
+            <div class="note-metas">
+              <label class="mini-field">
+                <span>来源</span>
+                <select id="noteSource">
+                  <option value="chatgpt">ChatGPT</option>
+                  <option value="workbuddy">WorkBuddy</option>
+                  <option value="book">书</option>
+                  <option value="video">视频</option>
+                  <option value="course">课程</option>
+                  <option value="other">其他</option>
+                </select>
+              </label>
+              <div class="mini-field">
+                <span>状态</span>
+                <div class="seg seg-xs" id="noteStatus">
+                  <button data-status="new">未消化</button>
+                  <button data-status="learning">在学</button>
+                  <button data-status="learned">已消化</button>
+                </div>
+              </div>
+              <label class="mini-field">
+                <span>复习</span>
+                <input id="noteReview" type="date" />
+              </label>
+            </div>
+            <input id="noteTags" class="note-tags" type="text" placeholder="标签，逗号分隔，如：react, 性能" autocomplete="off" />
+            <textarea id="noteBody" class="note-body" spellcheck="false" placeholder="正文。公式、代码、结论都可以直接贴进来。"></textarea>
+            <div class="note-foot">
+              <span class="note-saved" id="noteSaved"></span>
+              <div class="spacer"></div>
+              <button class="danger-btn" id="noteDelete">删除</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ 右侧抽屉：编辑 ============ -->
+  <aside class="drawer" id="drawer">
+    <div class="drawer-head">
+      <span id="drawerTitle">新建日程</span>
+      <button class="icon-btn" id="drawerClose" title="关闭">✕</button>
+    </div>
+    <div class="drawer-body">
+      <label class="field">
+        <span class="label">标题</span>
+        <input id="evTitle" type="text" placeholder="要做什么" autocomplete="off" />
+      </label>
+
+      <div class="field-row">
+        <label class="field">
+          <span class="label">日期</span>
+          <input id="evDate" type="date" />
+        </label>
+        <label class="field">
+          <span class="label">提醒</span>
+          <select id="evRemind">
+            <option value="-1">不提醒</option>
+            <option value="0">准点</option>
+            <option value="5">提前 5 分钟</option>
+            <option value="10" selected>提前 10 分钟</option>
+            <option value="30">提前 30 分钟</option>
+            <option value="60">提前 1 小时</option>
+            <option value="1440">提前 1 天</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="field-row">
+        <label class="field">
+          <span class="label">开始</span>
+          <input id="evStart" type="time" step="900" />
+        </label>
+        <label class="field">
+          <span class="label">结束</span>
+          <input id="evEnd" type="time" step="900" />
+        </label>
+      </div>
+
+      <div class="field">
+        <span class="label">分类</span>
+        <div class="color-row" id="evColors"></div>
+      </div>
+
+      <div class="field-row">
+        <label class="field">
+          <span class="label">重复</span>
+          <select id="evRepeat">
+            <option value="">不重复</option>
+            <option value="daily">每天</option>
+            <option value="weekday">每个工作日</option>
+            <option value="weekly">每周这天</option>
+            <option value="monthly">每月这天</option>
+          </select>
+        </label>
+        <label class="field hidden" id="untilField">
+          <span class="label">重复到</span>
+          <input id="evUntil" type="date" />
+        </label>
+      </div>
+
+      <label class="check-row hidden" id="applyAllRow">
+        <input type="checkbox" id="evApplyAll" />
+        <span>修改应用到整个重复系列</span>
+      </label>
+
+      <div class="repeat-tip hidden" id="repeatTip"></div>
+      <button class="link-danger hidden" id="btnDeleteSeries">删除整个重复系列</button>
+
+      <label class="field">
+        <span class="label">备注</span>
+        <textarea id="evNote" rows="4" placeholder="可选"></textarea>
+      </label>
+
+      <label class="check-row">
+        <input type="checkbox" id="evDone" />
+        <span>已完成</span>
+      </label>
+    </div>
+    <div class="drawer-foot">
+      <button class="danger-btn hidden" id="btnDelete">删除</button>
+      <div class="spacer"></div>
+      <button class="ghost-btn" id="btnCancel">取消</button>
+      <button class="primary-btn" id="btnSave">保存</button>
+    </div>
+  </aside>
+
+  <!-- ============ 设置面板 ============ -->
+  <div class="overlay hidden" id="settingsOverlay">
+    <div class="modal">
+      <div class="modal-head">
+        <span>设置与数据</span>
+        <button class="icon-btn" id="settingsClose" title="关闭">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="set-row">
+          <div>
+            <div class="set-title">到点通知</div>
+            <div class="set-desc">日程到点时弹出 macOS 系统通知。窗口关闭后仍会提醒。</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="setNotify" /><span></span></label>
+        </div>
+
+        <div class="set-row">
+          <div>
+            <div class="set-title">开机自动启动</div>
+            <div class="set-desc">登录 Mac 后自动在后台运行，保证提醒不遗漏。</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="setLogin" /><span></span></label>
+        </div>
+
+        <div class="set-row">
+          <div>
+            <div class="set-title">外观</div>
+            <div class="set-desc">跟随系统时，Mac 切到深色，界面和桌面贴一起变深。</div>
+          </div>
+          <div class="seg seg-sm" id="themeSeg">
+            <button data-theme="system" class="on">跟随系统</button>
+            <button data-theme="light">浅色</button>
+            <button data-theme="dark">深色</button>
+          </div>
+        </div>
+
+        <div class="set-row">
+          <div>
+            <div class="set-title">桌面贴透明度</div>
+            <div class="set-desc">数值越小越透，能看见后面的桌面。只影响桌面上的那张小卡片。</div>
+          </div>
+          <div class="slide-wrap">
+            <input type="range" id="setWidgetAlpha" min="25" max="100" step="1" value="55" />
+            <span class="slide-val" id="setWidgetAlphaVal">55%</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="set-row">
+          <div>
+            <div class="set-title">备份数据</div>
+            <div class="set-desc" id="dataPathLabel">数据保存在本机，不上传任何服务器。</div>
+          </div>
+        </div>
+        <div class="btn-grid">
+          <button class="ghost-btn" id="btnExportJson">导出备份 (JSON)</button>
+          <button class="ghost-btn" id="btnImportJson">导入备份</button>
+          <button class="ghost-btn" id="btnExportIcs">导出日历 (.ics)</button>
+          <button class="ghost-btn" id="btnReveal">在访达中显示</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="set-row">
+          <div>
+            <div class="set-title">学习笔记直连（MCP）</div>
+            <div class="set-desc" id="mcpDesc">学习笔记放在本机一个 JSON 文件里，工作台和外部工具读写的是同一份。接给 WorkBuddy 后，那边的助手就能直接帮你写学习记录、也能读你记过什么。</div>
+          </div>
+        </div>
+        <div class="btn-grid">
+          <button class="ghost-btn" id="btnCopyMcp">复制 MCP 配置</button>
+          <button class="ghost-btn" id="btnRevealStudy">打开学习笔记文件</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="set-row">
+          <div>
+            <div class="set-title">测试通知</div>
+            <div class="set-desc">点一下看看通知是否正常弹出。首次使用需在「系统设置 → 通知」中允许。</div>
+          </div>
+          <button class="ghost-btn" id="btnTestNotify">发送测试</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast"></div>
+
+  <!-- ============ 周报整理 ============ -->
+  <div class="overlay report-overlay hidden" id="reportOverlay">
+    <div class="report-panel">
+      <div class="report-head">
+        <div class="report-title">
+          <span>周报整理</span>
+          <span class="report-range" id="reportRange">—</span>
+        </div>
+        <div class="report-nav">
+          <button class="icon-btn" id="reportPrev" title="上一周">‹</button>
+          <button class="pill-btn" id="reportThisWeek">本周</button>
+          <button class="icon-btn" id="reportNext" title="下一周">›</button>
+          <button class="icon-btn" id="reportClose" title="关闭">✕</button>
+        </div>
+      </div>
+
+      <div class="report-body">
+        <div class="report-left">
+          <div class="stat-grid" id="reportStats"></div>
+
+          <div class="report-sec">
+            <div class="report-sec-title"><span>分类分布</span></div>
+            <div class="cat-list" id="reportCats"></div>
+          </div>
+
+          <div class="report-sec">
+            <div class="report-sec-title"><span>每日安排</span></div>
+            <div class="day-list" id="reportDays"></div>
+          </div>
+
+          <div class="report-sec">
+            <div class="report-sec-title"><span>待办</span></div>
+            <div class="todo-sum" id="reportTodos"></div>
+          </div>
+        </div>
+
+        <div class="report-right">
+          <div class="report-sec-title">
+            <span>周报正文</span>
+            <span class="report-hint">可直接编辑，改动按周保存</span>
+          </div>
+          <textarea class="report-textarea" id="reportText" spellcheck="false"></textarea>
+        </div>
+      </div>
+
+      <div class="report-foot">
+        <button class="ghost-btn" id="reportRegen">重新生成</button>
+        <span class="report-saved" id="reportSaved"></span>
+        <button class="ghost-btn" id="reportCopy">复制文本</button>
+        <button class="ghost-btn" id="reportExport">导出 .md</button>
+        <button class="primary-btn" id="reportDone">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 快速添加 ============ -->
+  <div class="quick-overlay hidden" id="quickOverlay">
+    <div class="quick-panel">
+      <input id="quickInput" type="text" autocomplete="off" spellcheck="false"
+             placeholder="明天下午3点 开会" />
+      <div class="quick-preview" id="quickPreview"></div>
+      <div class="quick-hint">
+        <span>支持「明天 / 周五 / 3月5日」「上午10点 / 15:30」「每天 / 每周」</span>
+        <span class="quick-keys">↵ 创建 · esc 取消</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="renderer.js"></script>
+</body>
+</html>

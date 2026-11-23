@@ -1,0 +1,27 @@
+# 依赖与构建产物
+node_modules/
+build/
+.cache/
+.bak/
+
+# 个人数据（绝对不能提交：里面是真实的日程与笔记）
+data.json
+data.json.prev
+data.json.tmp
+study.json
+study.json.prev
+study.json.tmp
+ui-state.json
+backups/
+*.local.json
+
+# 自检截图（docs 里保留的展示图除外）
+/shot-*.png
+
+# 系统垃圾
+.DS_Store
+*.log
+
+# 编辑器
+.vscode/
+.idea/

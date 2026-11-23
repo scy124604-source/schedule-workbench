@@ -1,0 +1,26 @@
+#!/bin/bash
+# 学习笔记 MCP 启动器：优先用系统 node，其次用应用自带的 Electron（node 模式）
+DIR="$(cd "$(dirname "$0")" && pwd)"
+SERVER="$DIR/study-mcp.js"
+
+if [ ! -f "$SERVER" ]; then
+  echo "找不到 study-mcp.js：$SERVER" >&2
+  exit 1
+fi
+
+if command -v node >/dev/null 2>&1; then
+  exec node "$SERVER"
+fi
+
+for BIN in \
+  "/Applications/日程工作台.app/Contents/MacOS/ScheduleWorkbench" \
+  "$DIR/../../node_modules/electron/dist/Electron.app/Contents/MacOS/Electron" \
+  "$DIR/../../../node_modules/electron/dist/Electron.app/Contents/MacOS/Electron"
+do
+  if [ -x "$BIN" ]; then
+    ELECTRON_RUN_AS_NODE=1 exec "$BIN" "$SERVER"
+  fi
+done
+
+echo "找不到可用的 node 运行环境（可安装 node 后重试）" >&2
+exit 1

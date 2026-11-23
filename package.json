@@ -1,0 +1,16 @@
+{
+  "name": "schedule-workbench",
+  "productName": "日程工作台",
+  "version": "1.0.0",
+  "description": "本地日程工作台：月/日视图、待办、提醒、周报、学习笔记，数据存在本机",
+  "main": "main.js",
+  "author": "scy124604-source",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build": "./build.sh"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}

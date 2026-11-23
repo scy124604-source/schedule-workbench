@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+  <title>今日</title>
+  <link rel="stylesheet" href="widget.css" />
+</head>
+<body>
+<div class="card">
+  <header class="head">
+    <div class="date">
+      <div class="num" id="wNum">--</div>
+      <div class="meta">
+        <div class="wk" id="wWeek">—</div>
+        <div class="sub" id="wSub">今日</div>
+      </div>
+    </div>
+    <div class="acts">
+      <button class="ico" id="wAlpha" title="透明度">◐</button>
+      <button class="ico" id="wOpen" title="打开日程工作台">↗</button>
+      <button class="ico" id="wHide" title="收起组件">✕</button>
+    </div>
+  </header>
+
+  <div class="next hidden" id="wNext">
+    <span class="bar" id="wNextBar"></span>
+    <div class="next-body">
+      <div class="next-time" id="wNextTime">—</div>
+      <div class="next-title" id="wNextTitle">—</div>
+    </div>
+    <span class="next-gap" id="wNextGap"></span>
+  </div>
+
+  <div class="scroll">
+    <section class="sec">
+      <div class="sec-head"><span>今日日程</span><b id="wEvCount">0</b></div>
+      <div class="list" id="wEvents"></div>
+    </section>
+
+    <section class="sec">
+      <div class="sec-head"><span>待办</span><b id="wTodoCount">0</b></div>
+      <div class="list" id="wTodos"></div>
+    </section>
+
+    <section class="sec">
+      <div class="sec-head"><span>明天</span><b id="wTmCount">0</b></div>
+      <div class="list" id="wTomorrow"></div>
+    </section>
+  </div>
+
+  <footer class="foot" id="wFoot">—</footer>
+</div>
+<script src="widget.js"></script>
+</body>
+</html>
