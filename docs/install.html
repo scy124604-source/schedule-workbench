@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>日程工作台 · 安装说明</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 900px;
+    background: #f2f4f8;
+    color: #131a26;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: 56px 60px 64px;
+  }
+  .head { margin-bottom: 34px; }
+  .kicker {
+    display: inline-block;
+    font-size: 13px;
+    color: #3b6cff;
+    background: #eaf0ff;
+    border-radius: 6px;
+    padding: 5px 10px;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+  }
+  h1 { font-size: 40px; letter-spacing: -1px; line-height: 1.2; }
+  .sub { margin-top: 12px; font-size: 17px; color: #5a6478; line-height: 1.7; }
+
+  .req {
+    display: flex;
+    gap: 18px;
+    background: #fff;
+    border: 1px solid #e4e8f0;
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin: 26px 0 40px;
+  }
+  .req-item { flex: 1; }
+  .req-item + .req-item { border-left: 1px solid #edf0f5; padding-left: 18px; }
+  .req-label { font-size: 12px; color: #8a93a6; margin-bottom: 6px; }
+  .req-val { font-size: 15px; font-weight: 600; line-height: 1.5; }
+  .req-val small { display: block; font-weight: 400; font-size: 12.5px; color: #8a93a6; margin-top: 4px; }
+
+  .step {
+    background: #fff;
+    border: 1px solid #e4e8f0;
+    border-radius: 18px;
+    padding: 26px 28px;
+    margin-bottom: 18px;
+    position: relative;
+  }
+  .step-head { display: flex; align-items: center; gap: 14px; }
+  .num {
+    flex: 0 0 auto;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: #3b6cff;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step-title { font-size: 20px; font-weight: 650; letter-spacing: -0.3px; }
+  .step-body { margin: 14px 0 0 48px; font-size: 15px; color: #414b5f; line-height: 1.85; }
+  .step-body b { color: #131a26; }
+  .step-body .warn { color: #f5484a; font-weight: 600; }
+
+  .pill {
+    display: inline-block;
+    background: #eef1f6;
+    border-radius: 5px;
+    padding: 1px 7px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #2c3548;
+  }
+  .link-card {
+    margin-top: 12px;
+    background: #f7f9fc;
+    border: 1px dashed #cfd7e6;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #3b6cff;
+    word-break: break-all;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+
+  /* 示意图：拖拽 */
+  .drag-vis {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    margin-top: 16px;
+    background: #f7f9fc;
+    border-radius: 12px;
+    padding: 22px 0;
+  }
+  .appicon {
+    width: 62px; height: 62px;
+    border-radius: 14px;
+    background: linear-gradient(160deg, #5b86ff, #3b6cff 55%, #2a58e8);
+    color: #fff;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.25;
+    box-shadow: 0 4px 10px rgba(59, 108, 255, 0.28);
+  }
+  .folder {
+    width: 58px; height: 46px;
+    border-radius: 6px;
+    background: linear-gradient(180deg, #8fb4ff, #6b95ff);
+    position: relative;
+  }
+  .folder::before {
+    content: '';
+    position: absolute;
+    top: -7px; left: 6px;
+    width: 24px; height: 9px;
+    border-radius: 4px 4px 0 0;
+    background: #a8c4ff;
+  }
+  .arrow { font-size: 22px; color: #9aa5b8; }
+
+  /* 示意图：右键菜单 */
+  .menu-vis {
+    margin-top: 16px;
+    background: #f7f9fc;
+    border-radius: 12px;
+    padding: 18px 0;
+    display: flex;
+    justify-content: center;
+    gap: 26px;
+    align-items: center;
+  }
+  .menu-demo {
+    width: 190px;
+    background: rgba(255,255,255,0.96);
+    border: 1px solid #dde2ea;
+    border-radius: 9px;
+    box-shadow: 0 10px 26px rgba(17,24,39,0.14);
+    padding: 5px;
+    font-size: 12.5px;
+  }
+  .menu-demo div {
+    padding: 5px 9px;
+    border-radius: 5px;
+    color: #333c4e;
+  }
+  .menu-demo div.hi {
+    background: #3b6cff;
+    color: #fff;
+    font-weight: 600;
+    position: relative;
+  }
+  .menu-demo div.dim { color: #b6bcc9; }
+  .menu-demo hr { border: 0; border-top: 1px solid #eef1f6; margin: 4px 6px; }
+  .tip-tag {
+    background: #fff4e8;
+    color: #d97116;
+    font-size: 12.5px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    line-height: 1.7;
+    max-width: 230px;
+  }
+
+  /* 示意图：弹窗 */
+  .dialog-vis {
+    margin-top: 16px;
+    background: #f7f9fc;
+    border-radius: 12px;
+    padding: 22px 0;
+    display: flex;
+    justify-content: center;
+  }
+  .dialog {
+    width: 330px;
+    background: #fff;
+    border-radius: 11px;
+    box-shadow: 0 12px 34px rgba(17,24,39,0.18);
+    padding: 18px 18px 14px;
+    text-align: center;
+    border: 1px solid #e8ebf2;
+  }
+  .dialog .ic {
+    width: 34px; height: 34px;
+    margin: 0 auto 9px;
+    border-radius: 9px;
+    background: linear-gradient(160deg, #5b86ff, #3b6cff);
+  }
+  .dialog .t1 { font-size: 13.5px; font-weight: 700; }
+  .dialog .t2 { font-size: 12px; color: #6b7488; margin-top: 6px; line-height: 1.6; }
+  .dialog .btns { display: flex; gap: 8px; margin-top: 14px; }
+  .dialog .btns span {
+    flex: 1;
+    font-size: 12.5px;
+    padding: 6px 0;
+    border-radius: 6px;
+    background: #f1f3f8;
+    color: #4a5468;
+  }
+  .dialog .btns span.pri { background: #3b6cff; color: #fff; font-weight: 650; }
+
+  .code {
+    margin-top: 12px;
+    background: #1c2129;
+    color: #e6eaf2;
+    border-radius: 9px;
+    padding: 12px 14px;
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    word-break: break-all;
+  }
+  .code em { color: #8b93a3; font-style: normal; }
+
+  .faq { margin-top: 40px; }
+  .faq h2 { font-size: 15px; color: #8a93a6; font-weight: 600; letter-spacing: 0.4px; margin-bottom: 14px; }
+  .qa {
+    background: #fff;
+    border: 1px solid #e4e8f0;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 10px;
+  }
+  .q { font-size: 15px; font-weight: 650; }
+  .a { font-size: 14px; color: #4a5468; line-height: 1.8; margin-top: 7px; }
+  .a code {
+    background: #f1f3f8;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 12.5px;
+  }
+
+  .foot {
+    margin-top: 38px;
+    padding-top: 22px;
+    border-top: 1px solid #e2e6ee;
+    font-size: 13.5px;
+    color: #7a8398;
+    line-height: 1.9;
+  }
+</style>
+</head>
+<body>
+
+  <div class="head">
+    <div class="kicker">给朋友的安装说明 · 只用 3 分钟</div>
+    <h1>日程工作台<br>怎么装到你的 Mac 上</h1>
+    <div class="sub">下面四步照着做就行。第一次打开会被系统拦一下，那是正常的，第 3 步专门讲怎么过。</div>
+  </div>
+
+  <div class="req">
+    <div class="req-item">
+      <div class="req-label">电脑要求</div>
+      <div class="req-val">苹果 Mac<small>M1 / M2 / M3 / M4 芯片</small></div>
+    </div>
+    <div class="req-item">
+      <div class="req-label">系统版本</div>
+      <div class="req-val">macOS 12 或更高<small>关于本机里能看到</small></div>
+    </div>
+    <div class="req-item">
+      <div class="req-label">需要多久</div>
+      <div class="req-val">约 3 分钟<small>下载 94MB，看网速</small></div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="num">1</div>
+      <div class="step-title">下载安装包</div>
+    </div>
+    <div class="step-body">
+      点开下面这个链接，页面右侧有个文件名，点它就开始下载。<br>
+      下载下来的文件叫 <span class="pill">schedule-workbench-1.0.0-mac-arm64.zip</span>，在「下载」文件夹里。
+      <div class="link-card">github.com/scy124604-source/schedule-workbench/releases/latest</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="num">2</div>
+      <div class="step-title">解压，然后把图标拖到「应用程序」</div>
+    </div>
+    <div class="step-body">
+      双击那个 zip，会解出一个带太阳图标的应用。把它<b>拖进左边的「应用程序」文件夹</b>，别直接在下载文件夹里打开。
+    </div>
+    <div class="drag-vis">
+      <div class="appicon">日程<br>工作台</div>
+      <div class="arrow">→</div>
+      <div class="folder"></div>
+      <div style="font-size:12.5px;color:#8a93a6;margin-left:6px;">应用程序</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="num">3</div>
+      <div class="step-title">第一次打开：右键 → 打开</div>
+    </div>
+    <div class="step-body">
+      这是唯一一个容易卡住的地方。<br>
+      到「应用程序」里找到它，<b>不要双击</b>。用鼠标<span class="warn">右键点一下图标</span>（触控板就两指同时点），在菜单里选「打开」；<br>
+      系统会弹一个窗口说「无法验证开发者」，再点窗口里那个「打开」。
+      <div style="margin-top:12px;font-size:14px;color:#6b7488;">
+        只做这一次。以后就可以正常双击了。
+      </div>
+    </div>
+    <div class="menu-vis">
+      <div class="menu-demo">
+        <div class="hi">打开</div>
+        <div>打开方式 ›</div>
+        <div class="dim">显示包内容</div>
+        <hr>
+        <div>移到废纸篓</div>
+        <div>显示简介</div>
+      </div>
+      <div class="tip-tag">按住 Control 键再点图标，效果一样。<br>要选的是带蓝色高亮的那一项。</div>
+    </div>
+    <div class="dialog-vis">
+      <div class="dialog">
+        <div class="ic"></div>
+        <div class="t1">无法打开「日程工作台」</div>
+        <div class="t2">Apple 无法验证此 App 是否包含恶意软件。<br>这个软件没有经过苹果签名，属于正常情况。</div>
+        <div class="btns"><span>移到废纸篓</span><span class="pri">打开</span></div>
+      </div>
+    </div>
+    <div class="step-body" style="margin-top:14px;">
+      点右边那个<b>「打开」</b>，可能还要输一次电脑密码，输完就进去了。
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="num">4</div>
+      <div class="step-title">允许通知</div>
+    </div>
+    <div class="step-body">
+      第一次运行会问你要不要发通知，<b>选「允许」</b>。不允许的话，日程到点不会提醒你，其余功能照常。
+    </div>
+  </div>
+
+  <div class="faq">
+    <h2>装着不顺利？看这里</h2>
+
+    <div class="qa">
+      <div class="q">提示「应用已损坏，无法打开」</div>
+      <div class="a">
+        不是真的坏了，是下载时被系统加了隔离标记。打开「终端」（在启动台里搜"终端"），把下面这一行整段复制进去，回车，输密码：
+        <div class="code">xattr -dr com.apple.quarantine /Applications/日程工作台.app</div>
+        <em style="font-size:12.5px;color:#8a93a6;display:block;margin-top:8px;">注意：中间有个空格，是从 /Applications 前面那个空格开始，整行别漏。</em>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="q">双击之后图标跳一下就没了，什么也没发生</div>
+      <div class="a">说明第 3 步没做对，系统其实把它拦下来了。回到「应用程序」，右键 →「打开」，重来一次。</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">我的 Mac 是 Intel 芯片的（2020 年以前买的）</div>
+      <div class="a">这个版本跑不了，会直接报错。看「关于本机」里芯片那一行，写的是 Intel 就不行。告诉我，我单独给你打一个。</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">我的日程数据存在哪？会不会传到网上</div>
+      <div class="a">全部存在你自己电脑里，路径是 <code>~/Library/Application Support/ScheduleWorkbench/</code>。软件不联网、不需要注册，也不会上传任何内容。想备份就把这个文件夹拷走。</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    装的时候卡在哪一步，直接把屏幕截图发我，不用自己琢磨。<br>
+    系统要求：macOS 12+ · Apple Silicon（M 系列芯片）
+  </div>
+
+</body>
+</html>

@@ -37,6 +37,8 @@
 
 4. 首次运行时系统会询问是否允许通知，选「允许」，否则到点提醒不会出现。
 
+不想看文字的话，这份长图版说明可以直接转发给不熟悉电脑的人：[docs/install-guide.png](docs/install-guide.png)（源文件 `docs/install.html`）。
+
 ## 从源码构建
 
 ```bash
